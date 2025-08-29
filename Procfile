@@ -1,0 +1,1 @@
+worker: python labubu_monitor.py
