@@ -26,14 +26,13 @@ USER_AGENTS = [
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:132.0) Gecko/20100101 Firefox/132.0'
 ]
 
-def send_telegram_notification(product_name, product_link):
-    """텔레그램으로 재입고 알림 전송"""
+def send_telegram_notification(product_name, message):
+    """텔레그램으로 알림 전송"""
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
         print("텔레그램 설정이 없습니다. 환경변수를 설정해주세요.")
         return
     
     try:
-        message = f"🎉 라부부 재입고 알림!\n\n{product_name}\n\n{product_link}"
         url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
         
         payload = {
@@ -126,10 +125,15 @@ def monitor_specific_product():
     target_id = "2127"
     is_sold_out = True
     
+    start_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     print(f"'{target_name}' 모니터링 시작...")
     print(f"검사 간격: 1분")
-    print(f"시작 시간: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"시작 시간: {start_time}")
     print("-" * 50)
+    
+    # 시작 알림 전송
+    start_message = f"🚀 라부부 모니터링 시작!\n\n상품: {target_name}\n시작 시간: {start_time}\n검사 간격: 1분"
+    send_telegram_notification("모니터링 시작", start_message)
     
     while True:
         try:
@@ -145,7 +149,8 @@ def monitor_specific_product():
                 print(f"https://popmart.co.kr/product/the-monsters-내-마음속-비밀번호-시리즈-인형-키링-n-z/{target_id}/category/87/display/1/")
                 print(f"{'='*50}\n")
                 
-                send_telegram_notification(target_name, f"https://popmart.co.kr/product/the-monsters-내-마음속-비밀번호-시리즈-인형-키링-n-z/{target_id}/category/87/display/1/")
+                restock_message = f"🎉 라부부 재입고 알림!\n\n{target_name}\n\nhttps://popmart.co.kr/product/the-monsters-내-마음속-비밀번호-시리즈-인형-키링-n-z/{target_id}/category/87/display/1/"
+                send_telegram_notification(target_name, restock_message)
                 
                 is_sold_out = False
             elif not is_available:
