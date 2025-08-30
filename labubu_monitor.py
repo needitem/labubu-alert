@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
 import time
@@ -97,7 +98,17 @@ def check_specific_product(target_product_id="2127"):
     driver = None
     try:
         options = get_chrome_options()
-        driver = webdriver.Chrome(options=options)
+        
+        # Railway 환경에서 Chromium 사용
+        chrome_bin = os.environ.get('CHROME_BIN', None)
+        chromedriver_path = os.environ.get('CHROMEDRIVER_PATH', None)
+        
+        if chrome_bin and chromedriver_path:
+            options.binary_location = chrome_bin
+            service = Service(chromedriver_path)
+            driver = webdriver.Chrome(service=service, options=options)
+        else:
+            driver = webdriver.Chrome(options=options)
         
         url = "https://popmart.co.kr/product/list.html?cate_no=87"
         driver.get(url)
