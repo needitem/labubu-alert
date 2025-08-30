@@ -129,6 +129,7 @@ def monitor_specific_product():
     target_name = "THE MONSTERS 내 마음속 비밀번호 시리즈 인형 키링 (N-Z)"
     target_id = "2127"
     is_sold_out = True
+    error_notified = False  # 에러 알림 여부 추적
     
     start_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     print(f"'{target_name}' 모니터링 시작...")
@@ -148,6 +149,11 @@ def monitor_specific_product():
             
             if is_available is None:
                 print(f"[{current_time}] 확인 불가")
+                # 확인 불가 상태를 처음 발견했을 때만 알림
+                if not error_notified:
+                    error_message = f"⚠️ 웹사이트 접속 문제 발생\n\n현재 팝마트 웹사이트에 접속할 수 없습니다.\n문제가 해결되면 다시 알려드리겠습니다."
+                    send_telegram_notification("접속 오류", error_message)
+                    error_notified = True
             elif is_available and is_sold_out:
                 print(f"\n{'='*50}")
                 print(f"🎉 [{current_time}] {target_name} 재입고!")
@@ -158,12 +164,15 @@ def monitor_specific_product():
                 send_telegram_notification(target_name, restock_message)
                 
                 is_sold_out = False
+                error_notified = False  # 정상 작동하면 에러 상태 리셋
             elif not is_available:
                 if not is_sold_out:
                     is_sold_out = True
                 print(f"[{current_time}] 품절")
+                error_notified = False  # 정상 작동하면 에러 상태 리셋
             else:
                 print(f"[{current_time}] 재고 있음")
+                error_notified = False  # 정상 작동하면 에러 상태 리셋
                 
             time.sleep(60)
             
