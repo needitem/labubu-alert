@@ -54,12 +54,17 @@ def send_telegram_notification(product_name, message):
 def get_chrome_options():
     options = Options()
     
-    # 기본 headless 설정
-    options.add_argument('--headless')  # headless 모드 복원
+    # Docker 컨테이너 환경에서 필수 설정
+    options.add_argument('--headless=new')  # 새로운 headless 모드
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument('--disable-gpu')
     options.add_argument('--window-size=1920,1080')
+    
+    # Docker 환경을 위한 추가 설정
+    options.add_argument('--disable-setuid-sandbox')
+    options.add_argument('--single-process')
+    options.add_argument('--no-zygote')
     
     # 봇 탐지 회피용 설정
     options.add_argument('--disable-blink-features=AutomationControlled')
