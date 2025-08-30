@@ -140,6 +140,7 @@ def monitor_specific_product():
     target_name = "THE MONSTERS 내 마음속 비밀번호 시리즈 인형 키링 (N-Z)"
     target_id = "2127"
     is_sold_out = True
+    sold_out_notified = False  # 품절 알림 여부 추적
     error_notified = False  # 에러 알림 여부 추적
     
     start_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -175,14 +176,24 @@ def monitor_specific_product():
                 send_telegram_notification(target_name, restock_message)
                 
                 is_sold_out = False
+                sold_out_notified = False  # 재입고되면 품절 알림 상태 리셋
                 error_notified = False  # 정상 작동하면 에러 상태 리셋
             elif not is_available:
                 if not is_sold_out:
                     is_sold_out = True
+                    sold_out_notified = False  # 새로 품절되면 알림 상태 리셋
+                
+                # 품절 상태를 처음 발견했을 때만 알림
+                if not sold_out_notified:
+                    soldout_message = f"😢 상품 품절 알림\n\n{target_name}\n\n재입고 시 즉시 알려드리겠습니다."
+                    send_telegram_notification("품절 알림", soldout_message)
+                    sold_out_notified = True
+                    
                 print(f"[{current_time}] 품절")
                 error_notified = False  # 정상 작동하면 에러 상태 리셋
             else:
                 print(f"[{current_time}] 재고 있음")
+                sold_out_notified = False  # 재고가 있으면 품절 알림 상태 리셋
                 error_notified = False  # 정상 작동하면 에러 상태 리셋
                 
             time.sleep(60)
